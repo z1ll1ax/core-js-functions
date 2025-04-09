@@ -33,6 +33,7 @@ function getCurrentFunctionName() {
  *
  */
 function getFunctionBody(func) {
+  if (typeof func !== 'function') return '';
   return func.toString();
 }
 
@@ -141,7 +142,7 @@ function memoize(func) {
  * retryer() => 2
  */
 function retry(func, attempts) {
-  return function () {
+  return () => {
     let lastError;
     for (let i = 0; i < attempts; i += 1) {
       try {
@@ -178,7 +179,7 @@ function retry(func, attempts) {
  *
  */
 function logger(func, logFunc) {
-  return function (...args) {
+  return (...args) => {
     const argsStr = args.map((arg) => JSON.stringify(arg)).join(',');
     logFunc(`${func.name}(${argsStr}) starts`);
     const result = func.apply(this, args);
@@ -200,8 +201,10 @@ function logger(func, logFunc) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(/* fn, ...args1 */) {
-  throw new Error('Not implemented');
+function partialUsingArguments(fn, ...args1) {
+  return (...args2) => {
+    return fn(...args1, ...args2);
+  };
 }
 
 /**
@@ -221,8 +224,13 @@ function partialUsingArguments(/* fn, ...args1 */) {
  *   getId4() => 7
  *   getId10() => 11
  */
-function getIdGeneratorFunction(/* startFrom */) {
-  throw new Error('Not implemented');
+function getIdGeneratorFunction(startFrom) {
+  let current = startFrom;
+  return () => {
+    const result = current;
+    current += 1;
+    return result;
+  };
 }
 
 module.exports = {
